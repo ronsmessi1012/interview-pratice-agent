@@ -1,0 +1,36 @@
+{
+  "role": "retail",
+  "description": "Retail associate and store roles: customer service, operations, and store management scenarios.",
+  "behavioral": [
+    "Tell me about a time you turned an unhappy customer into a satisfied one.",
+    "Describe how you prioritize tasks during a busy shift.",
+    "Give an example when you prevented loss or theft on the sales floor."
+  ],
+  "technical": {
+    "easy": [
+      "What are the steps you take for opening and closing a store shift?",
+      "How do you handle a customer asking for a refund on a used product?"
+    ],
+    "medium": [
+      "How would you manage a sudden surge in customers during a sale?",
+      "Explain how you'd train a new associate to reduce onboarding time."
+    ],
+    "hard": [
+      "Design a staffing plan for peak season to optimize service and minimize labor cost.",
+      "Propose a loss-prevention strategy for a small retail chain and how you'd measure its ROI."
+    ]
+  },
+  "difficulty_mapping": {
+    "easy": "procedural and customer-service basics",
+    "medium": "operational planning and problem-solving",
+    "hard": "strategic planning and KPI-driven decisions"
+  },
+  "follow_up_rules": {
+    "ask_for_example": true,
+    "clarify_gap": true,
+    "probe_technical_depth": false,
+    "max_followups": 2,
+    "weak_answer_threshold_words": 15,
+    "hedge_words": ["maybe", "might", "sort of", "I think", "perhaps", "probably"]
+  }
+}

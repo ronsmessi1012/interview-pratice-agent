@@ -1,0 +1,36 @@
+{
+  "role": "sales",
+  "description": "Sales interviews: behavioral, scenario and strategy questions across B2B/B2C contexts.",
+  "behavioral": [
+    "Describe a time you exceeded your sales target and how you achieved it.",
+    "Tell me about a difficult negotiation and how you closed the deal.",
+    "Give an example where you rebuilt trust with a client after a mistake."
+  ],
+  "technical": {
+    "easy": [
+      "What is a sales funnel and how do you measure its effectiveness?",
+      "Explain the difference between inbound and outbound sales."
+    ],
+    "medium": [
+      "How would you approach selling a high-value SaaS product to a conservative finance team?",
+      "Design a 30-day outreach cadence for cold prospects in a new market."
+    ],
+    "hard": [
+      "Propose a multi-channel strategy to launch a new enterprise product and justify the KPIs you would track.",
+      "How would you redesign a sales compensation plan to drive enterprise renewal rates?"
+    ]
+  },
+  "difficulty_mapping": {
+    "easy": "concepts, definitions, simple scenarios",
+    "medium": "practical scenarios and tactical plans",
+    "hard": "strategic planning and measurable KPIs"
+  },
+  "follow_up_rules": {
+    "ask_for_example": true,
+    "clarify_gap": true,
+    "probe_technical_depth": true,
+    "max_followups": 2,
+    "weak_answer_threshold_words": 25,
+    "hedge_words": ["maybe", "might", "sort of", "I think", "perhaps", "probably"]
+  }
+}

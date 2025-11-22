@@ -1,0 +1,100 @@
+{
+  "role": "engineer",
+  "description": "General engineering templates across branches. Frontend will pass branch and specialization (e.g., software/backend, electrical/power).",
+  "branches": {
+    "software": {
+      "behavioral": [
+        "Tell me about a challenging engineering problem you solved recently and how you approached it.",
+        "Describe a time you had to deliver under a tight deadline. What trade-offs did you make?",
+        "Give an example of when you improved system reliability or performance."
+      ],
+      "technical": {
+        "easy": [
+          "Explain what REST is and when you'd use it.",
+          "What's the difference between synchronous and asynchronous I/O?"
+        ],
+        "medium": [
+          "Design a scalable file upload service that supports large files and many concurrent users.",
+          "How would you reduce latency in a database-heavy API?"
+        ],
+        "hard": [
+          "Design a distributed system for collecting and aggregating telemetry at scale. Explain fault tolerance and partitioning.",
+          "Explain the trade-offs between consistent and available systems (CAP theorem) with examples."
+        ]
+      }
+    },
+    "electrical": {
+      "behavioral": [
+        "Describe a time you diagnosed and fixed an elusive electrical fault.",
+        "Tell me about a project where you improved power efficiency."
+      ],
+      "technical": {
+        "easy": [
+          "State Ohm's Law and give a simple application example.",
+          "What is the difference between AC and DC?"
+        ],
+        "medium": [
+          "How would you design a power supply for a sensitive analog circuit?",
+          "Explain the considerations when selecting a motor for a given torque and speed requirement."
+        ],
+        "hard": [
+          "Design a power distribution system for a small campus with redundancy and protection. Explain protection devices and calculations.",
+          "Explain EMI mitigation strategies in mixed-signal PCB design."
+        ]
+      }
+    },
+    "mechanical": {
+      "behavioral": [
+        "Describe a time you optimized a design for manufacturability.",
+        "Tell me about a project where you increased reliability under constrained cost."
+      ],
+      "technical": {
+        "easy": [
+          "Define stress and strain and their units.",
+          "What is a safety factor and why is it used?"
+        ],
+        "medium": [
+          "How would you select materials for a load-bearing component in a corrosive environment?",
+          "Explain how you would perform a basic thermal analysis for a compact enclosure."
+        ],
+        "hard": [
+          "Design a cooling system for a high-power electronic module where space is constrained.",
+          "Explain fatigue analysis and how you predict component life under cyclic loading."
+        ]
+      }
+    },
+    "civil": {
+      "behavioral": [
+        "Describe an instance when you ensured compliance with safety standards on site.",
+        "Tell me about a time you dealt with a regulatory hurdle on a project."
+      ],
+      "technical": {
+        "easy": [
+          "What is a shear force diagram?",
+          "Define dead load and live load."
+        ],
+        "medium": [
+          "How do you decide the foundation type for a mid-rise building?",
+          "Explain measures to control settlement in a soft soil site."
+        ],
+        "hard": [
+          "Design a retaining wall for a sloped site with drainage considerations.",
+          "Explain how to perform seismic load calculations for a multi-story structure."
+        ]
+      }
+    }
+  },
+  "difficulty_mapping": {
+    "easy": "basic conceptual or definition-level questions",
+    "medium": "scenario-based or moderate design/explanation",
+    "hard": "complex system design or in-depth technical analysis"
+  },
+  "follow_up_rules": {
+    "ask_for_example": true,
+    "clarify_gap": true,
+    "probe_technical_depth": true,
+    "max_followups": 2,
+    "weak_answer_threshold_words": 20,
+    "hedge_words": ["maybe", "might", "sort of", "I think", "perhaps", "probably"]
+  }
+}
