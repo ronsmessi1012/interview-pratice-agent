@@ -1,52 +1,57 @@
-# scoring.py
 from typing import Dict, Any
-from .llm import llm_generate  # or DummyModelClient
+from .llm import llm_generate
 
-def score_answer(answer: str, question: str, role: str) -> Dict[str, Any]:
+def score_answer(answer: str, question: str, role: str) -> Dict[str, float]:
     """
-    Compute scores for an answer considering the specific question.
-    Returns a dict of numerical scores and optionally qualitative labels.
+    Score an answer in context of a specific question and role.
+    Returns a numeric rubric:
+    - clarity (1-5)
+    - structure (1-5)
+    - examples (1-5)
+    - technical_accuracy (1-5)
+    - overall (computed)
     """
 
-    # Step 1 — Build a prompt for LLM scoring
     prompt = f"""
-You are an expert interview evaluator for role: {role}.
-Evaluate the candidate's answer with respect to the specific question.
+You are an expert interviewer for {role}.
+Question: {question}
+Candidate Answer: {answer}
 
-QUESTION: {question}
-ANSWER: {answer}
-
-Score the answer on a scale 0-10 for:
-- Accuracy
-- Relevance
-- Clarity
-- Depth of reasoning
+Score the answer on a 1-5 scale for:
+1. Clarity: How clear and understandable the answer is
+2. Structure: Logical flow or STAR structure
+3. Examples: Presence of concrete examples
+4. Technical Accuracy: Correctness of technical points
 
 Return STRICT JSON ONLY:
 {{
-    "accuracy": int,
-    "relevance": int,
-    "clarity": int,
-    "depth": int
+  "clarity": 0,
+  "structure": 0,
+  "examples": 0,
+  "technical_accuracy": 0,
+  "overall": 0
 }}
 """
 
-    # Step 2 — Call LLM
     raw = llm_generate(prompt)
-
-    # Step 3 — Parse safely
     import json
     try:
         scores = json.loads(raw)
-        # convert all values to float to avoid type issues later
-        scores = {k: float(v) for k, v in scores.items()}
+        # Ensure all keys exist
+        for k in ["clarity","structure","examples","technical_accuracy","overall"]:
+            scores[k] = float(scores.get(k, 0))
     except Exception:
-        # fallback dummy scoring
+        # fallback numeric scoring
         scores = {
-            "accuracy": 5.0,
-            "relevance": 5.0,
-            "clarity": 5.0,
-            "depth": 5.0
+            "clarity": 3.0,
+            "structure": 3.0,
+            "examples": 3.0,
+            "technical_accuracy": 3.0,
+            "overall": 3.0
         }
+
+    # recompute overall as average if not provided
+    if scores.get("overall", 0) == 0:
+        scores["overall"] = round(sum([scores[k] for k in ["clarity","structure","examples","technical_accuracy"]])/4, 2)
 
     return scores

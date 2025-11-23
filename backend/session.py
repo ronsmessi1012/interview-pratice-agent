@@ -2,37 +2,44 @@
 import uuid
 from typing import List, Dict, Optional, Any
 
-class InterviewSession:
-    def __init__(
-        self,
-        role: str,
-        branch: str,
-        specialization: str,
-        difficulty: str,
-        seed_questions: Optional[List[str]] = None
-    ):
-        self.id: str = str(uuid.uuid4())
-        self.role: str = role
-        self.branch: str = branch
-        self.specialization: str = specialization
-        self.difficulty: str = difficulty
+class InterviewMemory:
+    """
+    Stores long-term information about the user:
+    - Weak areas
+    - Past scores
+    - Suggested practice prompts
+    """
+    def __init__(self):
+        self.weak_areas: List[str] = []
+        self.past_avg_scores: Dict[str, float] = {}
+        self.practice_prompts: List[str] = []
+        self.resource_links: List[str] = []
 
-        # History
+class InterviewSession:
+    def __init__(self, role, branch, specialization, difficulty, seed_questions=None):
+        self.id: str = str(uuid.uuid4())
+        self.role = role
+        self.branch = branch
+        self.specialization = specialization
+        self.difficulty = difficulty
+
+        # Q/A history
         self.questions: List[str] = []
         self.answers: List[str] = []
 
-        # Seed questions (curriculum)
+        # Seed questions
         self.seed_questions: List[str] = seed_questions or []
-
-        # Index to current seed question
         self.current_seed_index: int = 0
-
-        # Number of follow-ups served for current seed
         self.current_followup_count: int = 0
-
-        # Completed flag
+        self.next_question_count: int = 0  # Tracks next-question actions separately
         self.completed: bool = False
 
+        # Memory object
+        self.memory: InterviewMemory = InterviewMemory()
+
+    # -----------------------------
+    # Seed question handling
+    # -----------------------------
     def get_current_seed(self) -> Optional[str]:
         """Return the current seed question, if any."""
         if 0 <= self.current_seed_index < len(self.seed_questions):
@@ -40,13 +47,18 @@ class InterviewSession:
         return None
 
     def advance_seed(self) -> None:
-        """Move to next seed question and reset follow-up count."""
+        """Move to next seed question, reset follow-ups, and increment next_question_count."""
         self.current_seed_index += 1
         self.current_followup_count = 0
-        # mark complete if no more seeds
+        self.next_question_count += 1
+
+        # Mark completed only if all seeds are done
         if self.current_seed_index >= len(self.seed_questions):
             self.completed = True
 
+    # -----------------------------
+    # Transcript & scoring
+    # -----------------------------
     def get_transcript(self, include_scores: Optional[List[Dict[str, Any]]] = None) -> List[Dict[str, Any]]:
         """
         Returns a list of Q/A dictionaries.
