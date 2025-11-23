@@ -1,4 +1,5 @@
 # backend/main.py
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import Optional
@@ -37,6 +38,7 @@ class FeedbackRequest(BaseModel):
     answer: str
     role: str
 
+
 # ---------------------------------------------
 # Load Prompt Templates
 # ---------------------------------------------
@@ -46,11 +48,13 @@ with open("prompts/interviewer_followup.txt", "r", encoding="utf-8") as f:
 with open("prompts/interviewer_first_question.txt", "r", encoding="utf-8") as f:
     INTERVIEW_FIRST = f.read()
 
+
 # ---------------------------------------------
 # Constants for interview flow
 # ---------------------------------------------
 MAX_FOLLOWUPS_PER_Q = 3
 MIN_NEXT_QUESTIONS_TO_END = 5
+
 
 # ---------------------------------------------
 # Health Check
@@ -59,11 +63,13 @@ MIN_NEXT_QUESTIONS_TO_END = 5
 def status():
     return {"status": "ok"}
 
+
 # ---------------------------------------------
 # /start — Begin Interview
 # ---------------------------------------------
 @app.post("/start")
 def start_interview(req: StartRequest):
+
     # Load role
     try:
         role_data = load_role(req.role)
@@ -71,7 +77,11 @@ def start_interview(req: StartRequest):
         role_data = None
 
     # Pick first seed question
-    seed_q = pick_seed_question(role_data, branch=req.branch, difficulty=req.difficulty) if role_data else None
+    seed_q = pick_seed_question(
+        role_data,
+        branch=req.branch,
+        difficulty=req.difficulty
+    ) if role_data else None
 
     # Fallback: LLM generates initial question
     if not seed_q:
@@ -88,7 +98,11 @@ def start_interview(req: StartRequest):
     if role_data:
         attempts = 0
         while len(seed_list) < 3 and attempts < 10:
-            q = pick_seed_question(role_data, branch=req.branch, difficulty=req.difficulty)
+            q = pick_seed_question(
+                role_data,
+                branch=req.branch,
+                difficulty=req.difficulty
+            )
             if q not in seed_list:
                 seed_list.append(q)
             attempts += 1
@@ -110,17 +124,23 @@ def start_interview(req: StartRequest):
 
     return {"session_id": session_id, "next_question": current}
 
+
 # ---------------------------------------------
 # /answer — Process Answer
 # ---------------------------------------------
 @app.post("/answer")
 def process_answer(req: AnswerRequest):
+
     session = get_session(req.session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Invalid session_id")
 
     if session.completed:
-        return {"session_id": session.id, "action": "end", "text": "Interview already completed. Request /feedback or /end for summary."}
+        return {
+            "session_id": session.id,
+            "action": "end",
+            "text": "Interview already completed. Request /feedback or /end for summary."
+        }
 
     # Save answer
     session.answers.append(req.answer)
@@ -157,14 +177,21 @@ def process_answer(req: AnswerRequest):
     # -------------------------
     if action == "follow_up":
         if session.current_followup_count >= max_followups:
-            # Max follow-ups reached → move to next question
+
+            # Max follow-ups reached → go to next question
             session.current_followup_count = 0
             session.advance_seed()
             session.next_question_count += 1
+
             if session.completed and session.next_question_count >= MIN_NEXT_QUESTIONS_TO_END:
-                return {"session_id": session.id, "action": "end", "text": "Interview completed. Request /feedback or /end for summary."}
+                return {
+                    "session_id": session.id,
+                    "action": "end",
+                    "text": "Interview completed. Request /feedback or /end for summary."
+                }
 
             next_seed = session.get_current_seed()
+
             # Rephrase next question
             system_prompt_filled = INTERVIEW_FIRST.format(
                 role=session.role,
@@ -173,14 +200,26 @@ def process_answer(req: AnswerRequest):
                 difficulty=session.difficulty
             )
             user_prompt = f"Rephrase the following interview question concisely:\n{next_seed}"
-            rephrased = model_client.generate(system_prompt=system_prompt_filled, user_prompt=user_prompt).strip()
-            session.questions.append(rephrased)
-            return {"session_id": session.id, "action": "next_question", "text": rephrased}
+            rephrased = model_client.generate(
+                system_prompt=system_prompt_filled,
+                user_prompt=user_prompt
+            ).strip()
 
-        # Serve follow-up
+            session.questions.append(rephrased)
+            return {
+                "session_id": session.id,
+                "action": "next_question",
+                "text": rephrased
+            }
+
+        # Serve follow-up question
         session.current_followup_count += 1
         session.questions.append(follow_up_q)
-        return {"session_id": session.id, "action": "follow_up", "text": follow_up_q}
+        return {
+            "session_id": session.id,
+            "action": "follow_up",
+            "text": follow_up_q
+        }
 
     # -------------------------
     # NEXT QUESTION LOGIC
@@ -190,9 +229,14 @@ def process_answer(req: AnswerRequest):
     session.next_question_count += 1
 
     if session.completed and session.next_question_count >= MIN_NEXT_QUESTIONS_TO_END:
-        return {"session_id": session.id, "action": "end", "text": "Interview completed. Request /feedback or /end for summary."}
+        return {
+            "session_id": session.id,
+            "action": "end",
+            "text": "Interview completed. Request /feedback or /end for summary."
+        }
 
     next_seed = session.get_current_seed()
+
     # Rephrase next question
     system_prompt_filled = INTERVIEW_FIRST.format(
         role=session.role,
@@ -201,27 +245,44 @@ def process_answer(req: AnswerRequest):
         difficulty=session.difficulty
     )
     user_prompt = f"Rephrase the following interview question concisely:\n{next_seed}"
-    rephrased = model_client.generate(system_prompt=system_prompt_filled, user_prompt=user_prompt).strip()
+    rephrased = model_client.generate(
+        system_prompt=system_prompt_filled,
+        user_prompt=user_prompt
+    ).strip()
+
     session.questions.append(rephrased)
-    return {"session_id": session.id, "action": "next_question", "text": rephrased}
+
+    return {
+        "session_id": session.id,
+        "action": "next_question",
+        "text": rephrased
+    }
+
 
 # ---------------------------------------------
-# /feedback — Evaluate Answer
+# /feedback — Evaluate specific Q/A
 # ---------------------------------------------
 @app.post("/feedback")
 def feedback_endpoint(payload: FeedbackRequest):
-    result = generate_feedback(
+    return generate_feedback(
         answer=payload.answer,
         question=payload.question,
         role=payload.role
     )
-    return result
 
+
+# ---------------------------------------------
+# /end — Generate Full Session Summary (Unstructured)
+# ---------------------------------------------
 # ---------------------------------------------
 # /end — Generate Full Session Summary
 # ---------------------------------------------
+class EndRequest(BaseModel):
+    session_id: str
+
 @app.post("/end")
-def end_interview(session_id: str):
+def end_interview(req: EndRequest):
+    session_id = req.session_id
     session = get_session(session_id)
     if not session:
         raise HTTPException(status_code=404, detail="Invalid session_id")
@@ -231,4 +292,5 @@ def end_interview(session_id: str):
 
     session.completed = True
     summary = generate_session_summary(session)
+
     return {"session_id": session_id, "summary": summary}
