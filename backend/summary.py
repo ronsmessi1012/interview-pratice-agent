@@ -1,6 +1,6 @@
 from typing import Dict, Any, List
-from .scoring import score_answer
-from .llm import llm_generate
+from scoring import score_answer
+from llm import llm_generate
 import json
 
 

@@ -1,8 +1,8 @@
 # feedback.py
 import json
 from typing import Dict, Any
-from .scoring import score_answer
-from .llm import llm_generate
+from scoring import score_answer
+from llm import llm_generate
 
 
 def build_feedback_prompt(answer: str, question: str, role: str, scores: Dict[str, Any]) -> str:

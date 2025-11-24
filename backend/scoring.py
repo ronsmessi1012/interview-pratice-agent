@@ -1,5 +1,5 @@
 from typing import Dict, Any
-from .llm import llm_generate
+from llm import llm_generate
 
 def score_answer(answer: str, question: str, role: str) -> Dict[str, float]:
     """

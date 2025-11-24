@@ -1,8 +1,8 @@
 # backend/followup.py
 import re
 from typing import Dict, Any
-from .session import InterviewSession
-from .llm import ModelClient  # type: ignore
+from session import InterviewSession
+from llm import ModelClient  # type: ignore
 
 HEDGE_WORDS = [
     "maybe", "might", "sort of", "i think", "perhaps", "probably", "maybe", "could be", "not sure"

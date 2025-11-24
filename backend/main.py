@@ -11,14 +11,14 @@ dotenv_path = os.path.join(os.path.dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
 # Internal modules
-from .llm import OllamaClient, DummyModelClient
-from .session import create_session, get_session
-from .roles_loader import load_role, pick_seed_question
-from .actions import decide_followup_rule, llm_decide_and_generate
-from .feedback import generate_feedback
-from .feedback import generate_feedback
-from .summary import generate_session_summary
-from .tts import generate_speech
+from llm import OllamaClient, DummyModelClient
+from session import create_session, get_session
+from roles_loader import load_role, pick_seed_question
+from actions import decide_followup_rule, llm_decide_and_generate
+from feedback import generate_feedback
+#from feedback import generate_feedback
+from summary import generate_session_summary
+from tts import generate_speech
 from fastapi.responses import Response
 
 from datetime import datetime, timedelta

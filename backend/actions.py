@@ -2,8 +2,8 @@
 import re
 import json
 from typing import Dict, Any
-from .session import InterviewSession
-from .llm import ModelClient  # type: ignore
+from session import InterviewSession
+from llm import ModelClient  # type: ignore
 
 # Default hedge words (lowercased)
 DEFAULT_HEDGE_WORDS = [
