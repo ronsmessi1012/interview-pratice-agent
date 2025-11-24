@@ -1,54 +1,79 @@
-# Interview Practice Partner — MVP
+# Novexa AI: The Ultimate AI Interviewer
 
-## Purpose
-An AI-backed Interview Practice Partner that conducts role-specific mock interviews with voice-first interactions and provides structured post-interview feedback.
+An advanced, voice-first AI interview practice agent designed to simulate realistic technical interviews. It uses local LLMs for intelligence and high-quality cloud TTS for a human-like experience.
 
-## Minimal Viable Product (MVP) Features
-1. Role types supported:
-   - Engineer
-   - Sales
-   - Retail Associate
-2. Interaction modes:
-   - Voice input (primary)
-   - Text input fallback
-3. Interviewer behavior:
-   - Role-specific question sets
-   - Follow-up questions based on user's answers
-4. Post-interview feedback:
-   - Rubric-based scoring (communication, domain knowledge, structure)
-   - Short actionable improvement items
-5. Session management:
-   - Start / Stop interview
-   - Save session transcript and feedback to local storage (or DB)
+## 🚀 Setup Instructions
 
-## Tech stack (initial recommendation)
-- Frontend: React (TypeScript) — for UI + WebRTC / Web Speech API integration
-- Backend: FastAPI (Python) or Node.js (Express) — handles session logic, scoring, and storage
-- Voice processing:
-  - Browser: Web Speech API for browser-based capture & speech-to-text
-  - Optional server-side: Whisper / OpenAI speech models for higher fidelity
-- AI: OpenAI-compatible completion API (or local LLM) for question selection, follow-ups, and feedback generation
-- Storage: SQLite (MVP) or simple JSON files for saved sessions
-- Dev tooling: Git, GitHub, venv (Python) / npm (Node), Docker (optional)
+### Prerequisites
+- Node.js (v18+)
+- Python (v3.10+)
+- [Ollama](https://ollama.com/) installed and running (`ollama serve`)
+- Llama 3 model pulled (`ollama pull llama3.1:8b`)
+- Murf.ai API Key
 
-## Repo layout (MVP)
-/interview-practice-agent
-├─ README.md
-├─ frontend/
-│  ├─ README.md
-│  └─ src/
-├─ backend/
-│  ├─ README.md
-│  └─ app/
-└─ .gitignore
+### 1. Backend Setup
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-## Quick start (developer)
-1. Clone repo
-2. Checkout `dev/mvp`
-3. Start backend & frontend locally
-4. Open app, select a role, start a voice mock interview
+Create a `.env` file in `backend/`:
+```env
+MURF_API_KEY=your_murf_api_key_here
+```
 
-## Goals for first 30 hours
-- Working voice mock interview loop (frontend + simple backend)
-- Role-specific Q/A with follow-ups
-- Post-interview rubric feedback generated and saved
+Start the server:
+```bash
+uvicorn main:app --reload
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Access the app at `http://localhost:5173`.
+
+---
+
+## 🏗️ Architecture
+
+The application follows a decoupled Client-Server architecture:
+
+- **Frontend (Client)**: A React SPA (Single Page Application) that handles:
+    - Real-time voice capture (Web Speech API).
+    - Silence detection logic.
+    - Audio playback management.
+    - UI/UX for setup, interview, and reporting.
+- **Backend (Server)**: A FastAPI service that acts as the brain:
+    - Manages interview state (Session ID).
+    - Interfaces with Ollama (Local LLM) for logic and content generation.
+    - Interfaces with Murf.ai for voice generation.
+    - Generates structured feedback reports.
+
+---
+
+## 💡 Design Decisions
+
+### 1. Hybrid AI Approach
+- **Local LLM (Ollama/Llama 3)**: Used for interview logic, question generation, and feedback.
+    - *Why?* Privacy, zero cost per token, and low latency for text generation.
+- **Cloud TTS (Murf.ai)**: Used for voice synthesis.
+    - *Why?* Local TTS models often sound robotic. Murf provides "human-like" quality essential for a realistic interview vibe.
+
+### 2. Voice-First UX
+- The UI is designed to be minimal during the interview, focusing on the "Voice Wave" animation.
+- **Live Transcript**: Displayed to give users confidence that the system "heard" them correctly.
+- **Smart Silence Detection**: Instead of a manual "Stop" button, the system listens for pauses (2s threshold) to simulate a natural conversation flow.
+
+### 3. Latency Optimization
+- **Direct API Calls**: The backend uses a global `requests.Session` to reuse TCP connections to Murf.ai, significantly reducing TTS latency compared to re-initializing the SDK.
+- **Optimistic UI**: The frontend shows the next question text immediately while the audio is being fetched/buffered.
+
+### 4. Robustness
+- **Minimum Duration**: The agent enforces a 10-minute minimum session to prevent premature endings, ensuring a comprehensive practice session.
+- **Retry Logic**: The report generation includes retry mechanisms to handle potential JSON formatting errors from the LLM.
