@@ -36,7 +36,7 @@ npm install
 npm run dev
 ```
 
-Access the app at `http://localhost:5173` or `https://agentint.netlify.app/` 
+Access the app at `http://localhost:5173`
 
 ---
 
